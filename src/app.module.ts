@@ -6,24 +6,26 @@ import { ProductsService } from './products/products.service.js';
 import { AdminModule } from './admin/admin.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
-
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DATABASE_HOST,
-      port: parseInt(process.env.DATABASE_PORT || '3306'),
-      username: process.env.DATABASE_USER,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
-      autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV === 'development',
-    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'mysql' as const,
+        host: config.get<string>('DATABASE_HOST'),
+        port: parseInt(config.get<string>('DATABASE_PORT') ?? '3306', 10),
+        username: config.get<string>('DATABASE_USER'),
+        password: config.get<string>('DATABASE_PASSWORD'),
+        database: config.get<string>('DATABASE_NAME'),
+        autoLoadEntities: true,
+        synchronize: config.get<string>('NODE_ENV') === 'development',
+      }),
     }),
     AdminModule,
     OrdersModule,
