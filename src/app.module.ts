@@ -6,17 +6,18 @@ import { ProductsService } from './products/products.service.js';
 import { AdminModule } from './admin/admin.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Order } from './orders/entities/order.entity.js';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: '127.0.0.1',
+      host: 'localhost',
       port: 3306,
       username: 'root',
       password: 'root',
       database: 'test',
-      entities: [],
+      entities: [Order],
       synchronize: true,
     }),
     AdminModule,
