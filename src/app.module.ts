@@ -6,19 +6,24 @@ import { ProductsService } from './products/products.service.js';
 import { AdminModule } from './admin/admin.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Order } from './orders/entities/order.entity.js';
+import { ConfigModule } from '@nestjs/config';
+
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'root',
-      database: 'test',
-      entities: [Order],
-      synchronize: true,
+      host: process.env.DATABASE_HOST,
+      port: parseInt(process.env.DATABASE_PORT || '3306'),
+      username: process.env.DATABASE_USER,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME,
+      autoLoadEntities: true,
+      synchronize: process.env.NODE_ENV === 'development',
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
     }),
     AdminModule,
     OrdersModule,
